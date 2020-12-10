@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Scene Editor</title>
+  <base href='.'>
+  <link rel="stylesheet" href="css/diagram-js.css" />
+  <link rel="stylesheet" href="vendor/bpmn-font/css/bpmn-embedded.css" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="content with-diagram" id="js-drop-zone" style="height:50%">
+
+    <div style="position: absolute; top: 0; left: 0; right: 260px;bottom:0;background: #000000;">
+      <canvas id="scene-canvas" style="width:100%;height: 100%;"></canvas>
+    </div>
+    <div class="properties-panel-parent" id="scene-properties"></div>
+  </div>
+
+  <div class="content with-diagram" id="js-drop-zone" style="height:50%">
+
+    <div class="canvas" id="process-canvas"></div>
+    <div class="properties-panel-parent" id="process-properties"></div>
+  </div>
+
+  <script src="index.js"></script>
+</html>

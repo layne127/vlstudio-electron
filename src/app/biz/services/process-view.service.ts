@@ -65,16 +65,6 @@ export class ProcessViewService {
           },
         },
       };
-      entries['create.group'] = {
-        group: 'tools',
-        className: 'fd',
-        title: '放大',
-        action: {
-          click(event) {
-            bpmnModeler.get('canvas').zoom(0.1);
-          },
-        },
-      };
       return entries;
     };
 

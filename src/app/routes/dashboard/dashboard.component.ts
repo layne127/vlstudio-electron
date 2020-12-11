@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Observable, fromEvent } from 'rxjs';
 import { _HttpClient } from '@delon/theme';
 import PropertiesPanel from 'bpmn-js-properties-panel/lib/PropertiesPanel';
 import EventBus from 'diagram-js/lib/core/EventBus';
@@ -9,7 +10,6 @@ import { NzUploadFile } from 'ng-zorro-antd/upload';
 import { filter } from 'rxjs/operators';
 import { ProcessViewService } from 'src/app/biz/services/process-view.service';
 import { ScenceViewService } from '../../biz/services/scence-view.service';
-
 /* require('../../../../node_modules/xeogl/examples/js/animation/cameraPath')(xeogl);
 require('../../../../node_modules/xeogl/examples/js/animation/cameraFollowAnimation')(xeogl); */
 /* require('../../../assets/scene-view/js/models/OBJModel')(xeogl);
@@ -32,6 +32,9 @@ export class DashboardComponent implements OnInit {
   isFullScreen = false;
   fullSreenText = '全屏';
   @ViewChild('studioView') studioView: any;
+  @ViewChild('scenceLeft') scenceLeft: any;
+  vlsVirtualHeight = '100px';
+  modelsVirtualHeight = '100px';
   constructor(
     private http: _HttpClient,
     private scenceViewService: ScenceViewService,
@@ -67,7 +70,6 @@ export class DashboardComponent implements OnInit {
         this.diagramXML = res;
         this.processViewService.processView('#process-canvas', '#process-properties-panel', this.diagramXML);
         this.sceneView = this.scenceViewService.senceView('scene-canvas', 'scene-properties-panel');
-        this.processViewService.bpmnModeler.get('canvas').zoom(0.5);
 
         this.processViewService.eventBus.on('scene.get_state', (event) => {
           console.log(event);
@@ -95,6 +97,11 @@ export class DashboardComponent implements OnInit {
           this.scenceViewService.stopAnim(event.id);
         });
       });
+    console.log(this.scenceLeft);
+    fromEvent(this.scenceLeft, 'resize').subscribe((event) => {
+      // 这里处理页面变化时的操作
+      console.log('come on ..', event);
+    });
   }
   /**
    * 选择obj模型
@@ -145,5 +152,10 @@ export class DashboardComponent implements OnInit {
       this.fullSreenText = '全屏';
       // this.studioView.nativeElement.style.height = '700px';
     }
+  }
+
+  @HostListener('resize', ['$event'])
+  onResize(event) {
+    console.log(event);
   }
 }

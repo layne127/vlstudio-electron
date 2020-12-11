@@ -2,18 +2,18 @@
 <full-content [(fullscreen)]="isFullScreen">
   <div nz-row nzType="flex" nzJustify="space-between">
     <div nz-col nzSpan="20"></div>
-    <div nz-col nzSpan="4" class="btns-stype">
+    <div nz-col nzSpan="4" class="btns-style">
       <button nz-button nzType="primary" (click)="saveVlS($event)">保存</button>
       <button nz-button nzType="primary" (click)="fullScreen()">{{ fullSreenText }}</button>
     </div>
   </div>
   <div #studioView id="studio-view">
     <div class="scence-div" id="scence-div" nz-row nzType="flex" appDrag>
-      <div class="div" id="scence-left" appDrag>
+      <div class="div" #scenceLeft id="scence-left" appDrag>
         <nz-upload [nzBeforeUpload]="beforeUploadForVls">
           <button nz-button><i nz-icon nzType="upload"></i><span>选择VLS模型</span></button>
         </nz-upload>
-        <nz-tree [nzData]="vlsTreeList" nzBlockNode nzVirtualHeight="360px" (nzClick)="nzEvent($event)"> </nz-tree>
+        <nz-tree [nzData]="vlsTreeList" nzBlockNode [nzVirtualHeight]="vlsVirtualHeight" (nzClick)="nzEvent($event)"> </nz-tree>
       </div>
       <app-scence-view class="div div-view" [modelObject]="modelObject" appDrag id="scence"> </app-scence-view>
       <div class="properties-panel-parent div" id="scene-properties-panel"></div>
@@ -23,7 +23,7 @@
         <nz-upload [nzBeforeUpload]="beforeUpload">
           <button nz-button><i nz-icon nzType="upload"></i><span>选择模型</span></button>
         </nz-upload>
-        <nz-tree [nzData]="treeList" nzBlockNode nzVirtualHeight="360px" (nzClick)="nzEvent($event)"> </nz-tree>
+        <nz-tree [nzData]="treeList" nzBlockNode [nzVirtualHeight]="modelsVirtualHeight" (nzClick)="nzEvent($event)"> </nz-tree>
       </div>
       <app-process-view class="div div-view" id="process" appDrag></app-process-view>
       <div class="properties-panel-parent div" id="process-properties-panel"></div>

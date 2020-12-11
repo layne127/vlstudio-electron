@@ -21,6 +21,8 @@ import { ScenceViewService } from '../../services/scence-view.service';
 export class ProcessViewComponent implements OnInit {
   diagramXML: any;
   processView: any;
+  zoomNum = 1;
+  processCanvas: any;
   constructor(
     private httpClient: HttpClient,
     private scenceViewService: ScenceViewService,
@@ -42,5 +44,32 @@ export class ProcessViewComponent implements OnInit {
         console.log('processView', this.processView);
       }
     });
+  }
+
+  /**
+   * 放大  0.1
+   */
+  zoomIn() {
+    this.processCanvas = this.processViewService.bpmnModeler.get('canvas');
+    this.zoomNum = Number((this.zoomNum + 0.1).toFixed(1));
+    if (this.zoomNum > 0) {
+      this.processCanvas.zoom(this.zoomNum);
+    }
+  }
+
+  /**
+   * 缩小 0.1
+   */
+  zoomOut() {
+    this.processCanvas = this.processViewService.bpmnModeler.get('canvas');
+    this.zoomNum = Number((this.zoomNum - 0.1).toFixed(1));
+    console.log(this.processCanvas);
+    console.log(this.zoomNum);
+    if (this.zoomNum > 0) {
+      this.processCanvas.zoom(this.zoomNum);
+    } else {
+      this.zoomNum = 0.1;
+      this.processCanvas.zoom(0.1);
+    }
   }
 }

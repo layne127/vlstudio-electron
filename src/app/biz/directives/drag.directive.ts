@@ -20,7 +20,6 @@ export class DragDirective {
   constructor(private el: ElementRef) {
     this.element = this.el.nativeElement;
   }
-
   @HostListener('mouseenter')
   onMouseEnter() {
     // this.highlight(this.highlightColor || '#cccccc');

@@ -73,8 +73,6 @@ export class DashboardComponent implements OnInit {
         this.sceneView = this.scenceViewService.senceView('scene-canvas', 'scene-properties-panel');
 
         this.processViewService.eventBus.on('scene.get_state', (event) => {
-          console.log(event);
-          console.log(this.scenceViewService.getState1());
           this.processViewService.updateScene(event.id, this.scenceViewService.getState1());
         });
         this.scenceViewService.eventBus.on('node.updated', (event) => {
@@ -106,8 +104,12 @@ export class DashboardComponent implements OnInit {
      * .pipe(debounceTime(300))
      */
     fromEvent(document.querySelector('#scence-left'), 'mouseup').subscribe((event) => {
-      // 这里处理div大小变化时的操作
-      console.log('come on ..', this.scenceLeft.nativeElement.clientHeight);
+      // 处理div大小变化时的操作
+      this.vlsVirtualHeight = this.scenceLeft.nativeElement.clientHeight - 50 + 'px';
+      this.modelsVirtualHeight = this.bottomLeft.nativeElement.clientHeight - 50 + 'px';
+    });
+    fromEvent(document.querySelector('#scence'), 'mouseup').subscribe((event) => {
+      // 处理div大小变化时的操作
       this.vlsVirtualHeight = this.scenceLeft.nativeElement.clientHeight - 50 + 'px';
       this.modelsVirtualHeight = this.bottomLeft.nativeElement.clientHeight - 50 + 'px';
     });
@@ -162,10 +164,5 @@ export class DashboardComponent implements OnInit {
       this.fullSreenText = '全屏';
       // this.studioView.nativeElement.style.height = '700px';
     }
-  }
-
-  @HostListener('resize', ['$event'])
-  onResize(event) {
-    console.log(event);
   }
 }

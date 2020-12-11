@@ -1,5 +1,6 @@
 import { Directive, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import $ from 'jquery';
+import { debounce } from 'rxjs/operators';
 @Directive({
   selector: '[appDrag]',
 })

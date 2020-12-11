@@ -7,7 +7,7 @@ import EventBus from 'diagram-js/lib/core/EventBus';
 import $ from 'jquery';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
-import { filter } from 'rxjs/operators';
+import { debounce, debounceTime, filter } from 'rxjs/operators';
 import { ProcessViewService } from 'src/app/biz/services/process-view.service';
 import { ScenceViewService } from '../../biz/services/scence-view.service';
 /* require('../../../../node_modules/xeogl/examples/js/animation/cameraPath')(xeogl);
@@ -33,6 +33,7 @@ export class DashboardComponent implements OnInit {
   fullSreenText = '全屏';
   @ViewChild('studioView') studioView: any;
   @ViewChild('scenceLeft') scenceLeft: any;
+  @ViewChild('bottomLeft') bottomLeft: any;
   vlsVirtualHeight = '100px';
   modelsVirtualHeight = '100px';
   constructor(
@@ -43,7 +44,7 @@ export class DashboardComponent implements OnInit {
   ) {
     this.scenceViewService.operatesHit.subscribe((res) => {
       this.operatesHit = res;
-      console.log(res);
+      //  console.log(res);
     });
     this.scenceViewService.getModelTreeList().subscribe((data) => {
       console.log('接收到模型库数据', data);
@@ -96,13 +97,22 @@ export class DashboardComponent implements OnInit {
         this.processViewService.eventBus.on('animation.stop', (event) => {
           this.scenceViewService.stopAnim(event.id);
         });
+        this.vlsVirtualHeight = this.scenceLeft.nativeElement.clientHeight - 50 + 'px';
+        this.modelsVirtualHeight = this.bottomLeft.nativeElement.clientHeight - 50 + 'px';
       });
-    console.log(this.scenceLeft);
-    fromEvent(this.scenceLeft, 'resize').subscribe((event) => {
-      // 这里处理页面变化时的操作
-      console.log('come on ..', event);
+
+    /**
+     * 设置模型树结构虚拟滚动高度
+     * .pipe(debounceTime(300))
+     */
+    fromEvent(document.querySelector('#scence-left'), 'mouseup').subscribe((event) => {
+      // 这里处理div大小变化时的操作
+      console.log('come on ..', this.scenceLeft.nativeElement.clientHeight);
+      this.vlsVirtualHeight = this.scenceLeft.nativeElement.clientHeight - 50 + 'px';
+      this.modelsVirtualHeight = this.bottomLeft.nativeElement.clientHeight - 50 + 'px';
     });
   }
+
   /**
    * 选择obj模型
    */

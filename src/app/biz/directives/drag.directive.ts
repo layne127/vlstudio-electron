@@ -75,7 +75,7 @@ export class DragDirective {
     const elementRect = this.element.getBoundingClientRect();
     this.shiftPosition.x = ev.clientX - elementRect.left;
     this.shiftPosition.y = ev.clientY - elementRect.top;
-    console.log('shiftPosition x:' + this.shiftPosition.x + ' y:' + this.shiftPosition.y);
+    // console.log('shiftPosition x:' + this.shiftPosition.x + ' y:' + this.shiftPosition.y);
   }
 
   setDragging(cursor: string, event: any) {
@@ -119,46 +119,37 @@ export class DragDirective {
     if (this.element.previousElementSibling) {
       const leftWidth = Number((this.element.previousElementSibling.clientWidth * 100.0) / this.element.parentNode.clientWidth).toFixed(0);
       const rightWidth = (100 - Number(leftWidth) - Number((width * 100.0) / this.element.parentNode.clientWidth)).toFixed(0) + '%';
-      if (100 - Number(widthEv) - Number(leftWidth) > 10) {
+      if (100 - Number(widthEv) - Number(leftWidth) >= 10) {
         this.element.style.width = widthEv + '%';
         this.element.nextElementSibling.style.width = rightWidth;
       }
     } else if (!this.element.previousElementSibling) {
+      let rightWidth2 = '';
       // && (this.element.id === 'scence' || this.element.id === 'scence-left' || this.element.id === 'bottom-left' || this.element.id === 'process')
-      const rightWidth2 = Number(
-        (this.element.nextElementSibling.nextElementSibling.clientWidth * 100.0) / this.element.parentNode.clientWidth,
-      ).toFixed(0);
-      const rightWidth = (100 - Number(rightWidth2) - Number((width * 100.0) / this.element.parentNode.clientWidth)).toFixed(0);
-      if (100 - Number(widthEv) - Number(rightWidth2) > 10) {
-        this.element.style.width = widthEv + '%';
-        this.element.nextElementSibling.style.width = 100 - Number(widthEv) - Number(rightWidth2) + '%';
-        this.element.nextElementSibling.nextElementSibling.style.width = rightWidth2 + '%';
+      if (
+        this.element.nextElementSibling.nextElementSibling.scrollHeight > this.element.nextElementSibling.nextElementSibling.clientHeight
+      ) {
+        // is scroll
+        rightWidth2 = Number(
+          ((this.element.nextElementSibling.nextElementSibling.clientWidth + 10) * 100.0) / this.element.parentNode.clientWidth,
+        ).toFixed(0);
       } else {
+        // no scroll
+        rightWidth2 = Number(
+          (this.element.nextElementSibling.nextElementSibling.clientWidth * 100.0) / this.element.parentNode.clientWidth,
+        ).toFixed(0);
+      }
+
+      const rightWidth = (100 - Number(rightWidth2) - Number((width * 100.0) / this.element.parentNode.clientWidth)).toFixed(0);
+      if (100 - Number(rightWidth2) - Number(widthEv) >= 10) {
+        this.element.style.width = widthEv + '%';
+        this.element.nextElementSibling.style.width = 100 - Number(rightWidth2) - Number(widthEv) + '%';
+        //  this.element.nextElementSibling.nextElementSibling.style.width = Number(rightWidth2) + '%';
       }
     }
   }
 
-  resizeElementW(ev: any) {
-    /*       console.log('左边移动');
-              const elementRect = this.element.getBoundingClientRect();
-              const parentRect = this.element.parentNode.getBoundingClientRect();
-              const min = this.element.parentNode.clientWidth / 10;
-              console.log(this.shiftPosition);
-              let left = this.shiftPosition.x - ev.clientX;
-              if (elementRect.left - left < min) {
-                  left = elementRect.left + min;
-              } else if (left > parentRect.right) {
-                  left = parentRect.right;
-              }
-              const width = elementRect.left + left;
-              console.log(Number(width * 100.0 / this.element.parentNode.clientWidth).toFixed(0) + '%');
-              this.element.style.width = Number(width * 100.0 / this.element.parentNode.clientWidth).toFixed(0) + '%';
-              if (this.element.previousElementSibling) {
-                  const rightWidth = Number(this.element.nextElementSibling.clientWidth * 100.0 / this.element.parentNode.clientWidth).toFixed(0);
-                  const leftWidth = (100 - Number(rightWidth) - Number(width * 100.0 / this.element.parentNode.clientWidth)).toFixed(0) + '%';
-                  this.element.previousElementSibling.style.width = leftWidth;
-              } */
-  }
+  resizeElementW(ev: any) {}
   resizeElementS(ev: any) {
     // console.log('do resize element y');
     const elementRect = this.element.getBoundingClientRect();
@@ -213,7 +204,7 @@ export class DragDirective {
     const elementRect = this.element.getBoundingClientRect();
     this.shiftPosition.x = elementRect.right - ev.clientX;
     this.shiftPosition.y = elementRect.bottom - ev.clientY;
-    console.log('shiftPosition x:' + this.shiftPosition.x + ' y:' + this.shiftPosition.y);
+    // console.log('shiftPosition x:' + this.shiftPosition.x + ' y:' + this.shiftPosition.y);
   }
 
   setResizing(cursor: string, event: any) {
@@ -227,7 +218,6 @@ export class DragDirective {
       return;
     }
     cursor = cursor.replace('-resize', '');
-    console.log(cursor);
     this.isResizingW = cursor.indexOf('w') >= 0;
     this.isResizingE = cursor.indexOf('e') >= 0;
     this.isResizingS = cursor.indexOf('s') >= 0;
@@ -237,7 +227,7 @@ export class DragDirective {
 
   getMutableCursor(ev): string {
     const elementRect = this.element.getBoundingClientRect();
-    const padding = 20;
+    const padding = 5;
     const pt = {
       x: ev.clientX,
       y: ev.clientY,
@@ -258,7 +248,8 @@ export class DragDirective {
       cursor += 'ew';
     }
     if (cursor === '') {
-      return 'move';
+      //  return 'move';
+      return 'default';
     }
     return cursor + '-resize';
   }
@@ -276,7 +267,7 @@ export class DragDirective {
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(ev: any) {
     if (this.isParent(ev.target, this.element)) {
-      console.log(ev.target.nodeName + ' x:' + ev.clientX + ' y:' + ev.clientY);
+      // console.log(ev.target.nodeName + ' x:' + ev.clientX + ' y:' + ev.clientY);
       const cursor = this.getMutableCursor(ev);
       if (cursor === 'move') {
         this.setDragging(cursor, ev);
@@ -315,7 +306,6 @@ export class DragDirective {
 
   @HostListener('document:mouseup', ['$event'])
   onMouseUp() {
-    console.log('鼠标抬起');
     this.setDragging(null, null);
     this.setResizing(null, null);
   }

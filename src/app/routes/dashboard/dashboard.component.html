@@ -1,85 +1,180 @@
-<page-header></page-header>
-<full-content [(fullscreen)]="isFullScreen">
-  <div nz-row nzType="flex" nzJustify="space-between">
-    <div nz-col nzSpan="20"></div>
-    <div nz-col nzSpan="4" class="btns-style">
-      <button nz-button nzType="primary" (click)="saveVlS($event)">保存</button>
-      <button nz-button nzType="primary" (click)="fullScreen()">{{ fullSreenText }}</button>
-    </div>
-  </div>
-  <div #studioView id="studio-view">
-    <div class="scence-div" id="scence-div" nz-row nzType="flex" appDrag>
-      <div class="div" #scenceLeft id="scence-left" appDrag>
-        <nz-upload [nzBeforeUpload]="beforeUploadForVls">
-          <button nz-button><i nz-icon nzType="upload"></i><span>选择VLS模型</span></button>
-        </nz-upload>
-        <nz-tree [nzData]="vlsTreeList" nzBlockNode [nzVirtualHeight]="vlsVirtualHeight" (nzClick)="nzEvent($event)"> </nz-tree>
-      </div>
-      <app-scence-view class="div div-view" [modelObject]="modelObject" appDrag id="scence"> </app-scence-view>
-      <div class="properties-panel-parent div" id="scene-properties-panel"></div>
-    </div>
-    <div class="process-div" nz-row nzType="flex">
-      <div id="bottom-left" #bottomLeft class="div" appDrag>
-        <nz-upload [nzBeforeUpload]="beforeUpload">
-          <button nz-button><i nz-icon nzType="upload"></i><span>选择模型</span></button>
-        </nz-upload>
-        <nz-tree [nzData]="treeList" nzBlockNode [nzVirtualHeight]="modelsVirtualHeight" (nzClick)="nzEvent($event)"> </nz-tree>
-      </div>
-      <app-process-view class="div div-view" id="process" appDrag></app-process-view>
-      <div class="properties-panel-parent div" id="process-properties-panel"></div>
-    </div>
-  </div>
-</full-content>
-<!--   <div appDrag class="div" id="scence-left">
-        <nz-upload [nzBeforeUpload]="beforeUploadForVls">
-            <button nz-button><i nz-icon nzType="upload"></i><span>选择VLS模型</span></button>
-        </nz-upload>
-        <nz-tree [nzData]="vlsTreeList" nzBlockNode nzVirtualHeight="360px" (nzClick)="nzEvent($event)">
-        </nz-tree>
-    </div>
-    <app-scence-view class="div div-view" [modelObject]="modelObject" appDrag id="scence">
-    </app-scence-view>
-    <div class="properties-panel-parent div" id="scene-properties-panel"></div>
+<!-- <page-header></page-header> -->
+<nz-spin [nzSpinning]="isSpinning" [nzTip]="tipTitle">
+  <full-content [(fullscreen)]="isFullScreen" class="full-screen">
+    <div nz-row nzType="flex" nzJustify="space-between" class="tools-btn">
+      <div nz-col nzSpan="20" class="tool-btn">
+        <!--  <button nz-button nzType="primary" (click)="saveVlS($event)">导入</button> -->
+        <button nz-button nz-dropdown nzType="primary" [nzDropdownMenu]="dropdownMenu" nzPlacement="bottomLeft">文件</button>
+        <nz-dropdown-menu #dropdownMenu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item>
+              <nz-upload [nzBeforeUpload]="beforeUpload" style="float: left">
+                <button nz-button nzType="primary"><i nz-icon nzType="upload"></i><span>导入模型</span></button>
+              </nz-upload>
+            </li>
+            <li nz-menu-item (click)="onClick()">导入模型</li>
+            <li nz-menu-item>
+              导入模型
+              <nz-upload [nzBeforeUpload]="beforeUploadForVls">
+                <button nz-button><i nz-icon nzType="upload"></i><span>选择模型</span></button>
+              </nz-upload>
+            </li>
+          </ul>
+        </nz-dropdown-menu>
 
-    <div id="bottom-left" class="div">
-        <nz-upload [nzBeforeUpload]="beforeUpload">
-            <button nz-button><i nz-icon nzType="upload"></i><span>选择模型</span></button>
-        </nz-upload>
-        <nz-tree [nzData]="treeList" nzBlockNode nzVirtualHeight="360px" (nzClick)="nzEvent($event)"> </nz-tree>
+        <button nz-button nzType="primary" (click)="clear()">清除</button>
+        <button nz-button nzType="primary" (click)="revoke()">撤销</button>
+        <button nz-button nzType="primary" (click)="reform()">重做</button>
+        <button nz-button nzType="primary" (click)="onBoard()">引导</button>
+      </div>
+      <div nz-col nzSpan="4" class="btns-style">
+        <button nz-button nzType="primary" (click)="preview()">预览</button>
+        <button nz-button nzType="primary" (click)="saveVlS($event)">保存</button>
+        <button nz-button nzType="primary" (click)="fullScreen()">{{ fullSreenText }}</button>
+      </div>
     </div>
-    <app-process-view class="div  div-view" appDrag></app-process-view>
-    <div class="properties-panel-parent div" id="process-properties-panel">
-    </div> -->
-
-<!-- <div nz-row style="height: 50%;">
-    <div nz-col nzSpan="4" id="scence-left">
-        <div appDrag style="position: absolute;">
-            <nz-upload [nzBeforeUpload]="beforeUploadForVls">
-                <button nz-button><i nz-icon nzType="upload"></i><span>选择VLS模型</span></button>
-            </nz-upload>
-            <nz-tree [nzData]="vlsTreeList" nzBlockNode nzVirtualHeight="360px" (nzClick)="nzEvent($event)">
-            </nz-tree>
+    <div #studioView id="studio-view">
+      <div class="scence-div" id="scence-div" nz-row nzType="flex" appDrag>
+        <div class="div" #scenceLeft id="scence-left" appDrag>
+          <!-- <nz-upload [nzBeforeUpload]="beforeUpload">
+          <button nz-button style="width: 100%;"><i nz-icon nzType="upload"></i><span>选择模型</span></button>
+        </nz-upload> -->
+          <nz-tabset nzType="card" nzSize="small">
+            <nz-tab nzTitle="模型树">
+              <nz-input-group [nzSuffix]="suffixIcon" style="width: 100%">
+                <input type="text" nz-input placeholder="模型搜索" [(ngModel)]="modelSearchValue" />
+              </nz-input-group>
+              <ng-template #suffixIcon>
+                <i nz-icon nzType="search"></i>
+              </ng-template>
+              <nz-tree
+                class="model-tree-style"
+                [nzSearchValue]="modelSearchValue"
+                [nzData]="treeList"
+                nzBlockNode
+                [nzVirtualHeight]="modelsVirtualHeight"
+                (nzClick)="nzEvent($event)"
+                (nzExpandChange)="nzEvent($event)"
+                (nzSearchValueChange)="nzEvent($event)"
+              ></nz-tree>
+            </nz-tab>
+            <nz-tab nzTitle="模型管理">模型管理</nz-tab>
+          </nz-tabset>
         </div>
-    </div>
-    <div nz-col nzSpan="16">
-        <app-scence-view [modelObject]="modelObject" appDrag style="position: absolute;" id="scence">
+        <app-scence-view
+          #scenceView
+          class="div div-view"
+          [modelObject]="modelObject"
+          appDrag
+          id="scence"
+          (ModelFullScreenEmitter)="ModelFullScreenEmitter($event)"
+        >
         </app-scence-view>
+        <div class="properties-panel-parent div" id="scene-properties-panel" #scenePropertiesPanel></div>
+        <div class="zoom-btn-left">
+          <div class="model-enlarge-left" (click)="modelEnlarge('left')">
+            <i nz-icon *ngIf="!isModelEnlargeLeft" nzType="minus" nzTheme="outline"></i>
+            <i nz-icon *ngIf="isModelEnlargeLeft" nzType="plus" nzTheme="outline"></i>
+          </div>
+        </div>
+        <div class="zoom-btn-right">
+          <div class="model-enlarge-right" (click)="modelEnlarge('right')">
+            <i nz-icon *ngIf="!isModelEnlargeRight" nzType="minus" nzTheme="outline"></i>
+            <i nz-icon *ngIf="isModelEnlargeRight" nzType="plus" nzTheme="outline"></i>
+          </div>
+        </div>
+      </div>
+      <div class="process-div" nz-row nzType="flex">
+        <div id="bottom-left" #bottomLeft class="div" appDrag>
+          <nz-tabset nzType="card" nzSize="small" style="height: 100%" class="model-tab">
+            <nz-tab nzTitle="设备模型">
+              <!--  <nz-input-group [nzSuffix]="suffixIcon" style="width: 100%;">
+              <input type="text" nz-input placeholder="模型搜索" [(ngModel)]="modelSearchValue">
+            </nz-input-group>
+            <ng-template #suffixIcon>
+              <i nz-icon nzType="search"></i>
+            </ng-template>
+            <nz-tree [nzData]="vlsTreeList" nzBlockNode [nzVirtualHeight]="vlsVirtualHeight"
+              (nzClick)="nzEvent($event)">
+            </nz-tree> -->
+              维修操作的机器装备
+              <!-- <div class=""> -->
+              <ul class="equip-model-list">
+                <li class="equip-model"></li>
+                <li class="equip-model"></li>
+                <li class="equip-model"></li>
+                <li class="equip-model"></li>
+                <li class="equip-model"></li>
+                <li class="equip-model"></li>
+              </ul>
+              <!-- </div> -->
+            </nz-tab>
+            <nz-tab nzTitle="场景模型"
+              >常见的操作台模型、环境模型、灯光设置等
+              <div class="">
+                <ul class="equip-model-list">
+                  <li class="equip-model"></li>
+                  <li class="equip-model"></li>
+                  <li class="equip-model"></li>
+                </ul>
+              </div>
+            </nz-tab>
+            <nz-tab nzTitle="工具模型"
+              >常用的维修工具模型、工具操作动画等
+              <div class="">
+                <ul class="equip-model-list">
+                  <li class="equip-model"></li>
+                  <li class="equip-model"></li>
+                  <li class="equip-model"></li>
+                </ul>
+              </div>
+            </nz-tab>
+          </nz-tabset>
+        </div>
+        <app-process-view
+          #processView
+          class="div div-view"
+          id="process"
+          appDrag
+          (ProcessFullScreenEmitter)="ProcessFullScreenEmitter($event)"
+        ></app-process-view>
+        <!-- <full-content [(fullscreen)]="isProcessFullScreen">
+        <app-process-view class="div div-view" id="process" appDrag></app-process-view>
+      </full-content> -->
+
+        <div class="properties-panel-parent div" id="process-properties-panel" #processPropertiesPanel></div>
+
+        <div class="process-btn-left">
+          <div class="process-enlarge-left" (click)="processEnlarge('left')">
+            <i nz-icon *ngIf="!isProcessEnlargeLeft" nzType="minus" nzTheme="outline"></i>
+            <i nz-icon *ngIf="isProcessEnlargeLeft" nzType="plus" nzTheme="outline"></i>
+          </div>
+        </div>
+        <div class="process-btn-right">
+          <div class="process-enlarge-right" (click)="processEnlarge('right')">
+            <i nz-icon *ngIf="!isProcessEnlargeRight" nzType="minus" nzTheme="outline"></i>
+            <i nz-icon *ngIf="isProcessEnlargeRight" nzType="plus" nzTheme="outline"></i>
+          </div>
+        </div>
+      </div>
     </div>
-    <div nz-col nzSpan="4" id="scence-right">
-        <div class="properties-panel-parent" id="scene-properties-panel" style="width:100%;height: 100%;"></div>
-    </div>
-</div> -->
-<!-- <div nz-row>
-    <div nz-col nzSpan="4">
-        <nz-upload [nzBeforeUpload]="beforeUpload">
-            <button nz-button><i nz-icon nzType="upload"></i><span>选择模型</span></button>
-        </nz-upload>
-        <nz-tree [nzData]="treeList" nzBlockNode nzVirtualHeight="360px" (nzClick)="nzEvent($event)"> </nz-tree>
-    </div>
-    <div nz-col nzSpan="16">
-        <app-process-view></app-process-view>
-    </div>
-    <div nz-col nzSpan="4">
-        <div class="properties-panel-parent" id="process-properties-panel" style="width:100%;height: 100%;"></div>
-    </div>
-</div> -->
+  </full-content>
+</nz-spin>
+
+<nz-modal nzWidth="1200" [(nzVisible)]="isPreview" nzTitle="预览" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+  <div style="top: 0; bottom: 0; left: 0; width: 100%; height: 100%; background: #000">
+    <canvas id="vls-canvas" style="width: 100%; height: 100%"></canvas>
+    <!-- <div class="tools-btn">
+        <div class="tool-play">
+          <button nz-button nzType="primary" (click)="play()">播放</button>
+            <button nz-button nzType="primary" (click)="Pause(true)">暂停</button>
+            <button nz-button nzType="primary" (click)="Pause(false)">继续</button>
+            <button nz-button nzType="primary" (click)="Finished()">结束</button>
+            <button nz-button nzType="primary" (click)="clear()">清除模型</button>
+            <button nz-button nzType="primary" (click)="jump()">跳转</button> 
+        </div>
+        <div class="fullscreen">
+        </div>
+      </div> -->
+  </div>
+</nz-modal>

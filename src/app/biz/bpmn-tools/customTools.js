@@ -3,7 +3,7 @@ import { assign } from 'min-dash';
 /**
  * A palette provider for BPMN 2.0 elements.
  */
-export default function PaletteProvider(palette, create, elementFactory, spaceTool, lassoTool, handTool, globalConnect, translate) {
+export default function paletteProvider(palette, create, elementFactory, spaceTool, lassoTool, handTool, globalConnect, translate) {
   this._palette = palette;
   this._create = create;
   this._elementFactory = elementFactory;
@@ -16,9 +16,9 @@ export default function PaletteProvider(palette, create, elementFactory, spaceTo
   palette.registerProvider(this);
 }
 
-PaletteProvider.$inject = ['palette', 'create', 'elementFactory', 'spaceTool', 'lassoTool', 'handTool', 'globalConnect', 'translate'];
+paletteProvider.$inject = ['palette', 'create', 'elementFactory', 'spaceTool', 'lassoTool', 'handTool', 'globalConnect', 'translate'];
 
-PaletteProvider.prototype.getPaletteEntries = function (element) {
+paletteProvider.prototype.getPaletteEntries = function (element) {
   var actions = {},
     create = this._create,
     elementFactory = this._elementFactory,
@@ -154,7 +154,28 @@ PaletteProvider.prototype.getPaletteEntries = function (element) {
       group: 'events',
       separator: true,
     },
-    'create.exclusive-gateway': createAction(
+    'play-tool': {
+      //创建子流程（展开的）
+      group: 'tools',
+      className: 'bpmn-icon-start-event-signal',
+      title: translate('Play the process animation'),
+      action: {
+        dragstart: createSubprocess,
+        click: function (event) {
+          reset();
+          // TODO: have to properly wait for the stop_anim to complete,
+          // since scene-view uses a single anim variable!
+          setTimeout(function () {
+            bpmnModeler.saveXML().then((result) => {
+              eventBus.fire('process.play', {
+                xml: result.xml,
+              });
+            });
+          }, 1000);
+        },
+      },
+    },
+    /*  'create.exclusive-gateway': createAction(
       //互斥网关
       'bpmn:ExclusiveGateway',
       'gateway',
@@ -194,7 +215,7 @@ PaletteProvider.prototype.getPaletteEntries = function (element) {
       group: 'gateways',
       separator: true,
     },
-    'create.task': createAction(
+     'create.task': createAction(
       //空白任务
       'bpmn:Task',
       'activity',
@@ -214,8 +235,8 @@ PaletteProvider.prototype.getPaletteEntries = function (element) {
       'activity',
       'bpmn-icon-send-task',
       translate('Create SendTask'),
-    ),
-    'create.receive-task': createAction(
+    ), */
+    /* 'create.receive-task': createAction(
       //接收任务
       'bpmn:ReceiveTask',
       'activity',
@@ -267,7 +288,7 @@ PaletteProvider.prototype.getPaletteEntries = function (element) {
         click: createSubprocess,
       },
     },
-    'task-separator': {
+     'task-separator': {
       //任务分割线
       group: 'tasks',
       separator: true,
@@ -304,7 +325,7 @@ PaletteProvider.prototype.getPaletteEntries = function (element) {
       'artifact',
       'bpmn-icon-group',
       translate('Create Group'),
-    ),
+    ), */
   });
 
   return actions;

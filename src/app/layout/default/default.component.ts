@@ -21,6 +21,8 @@ import { takeUntil } from 'rxjs/operators';
 
 import { SettingDrawerComponent } from './setting-drawer/setting-drawer.component';
 
+import { ElectronService } from 'ngx-electron';
+
 @Component({
   selector: 'layout-default',
   templateUrl: './default.component.html',
@@ -30,6 +32,7 @@ export class LayoutDefaultComponent implements OnInit, AfterViewInit, OnDestroy 
   @ViewChild('settingHost', { read: ViewContainerRef, static: true })
   private settingHost!: ViewContainerRef;
   isFetching = false;
+  logger: any;
 
   constructor(
     router: Router,
@@ -38,8 +41,14 @@ export class LayoutDefaultComponent implements OnInit, AfterViewInit, OnDestroy 
     private settings: SettingsService,
     private el: ElementRef,
     private renderer: Renderer2,
+    private electronService: ElectronService,
     @Inject(DOCUMENT) private doc: any,
   ) {
+    /* if (this.electronService.isElectronApp) {
+      this.logger = this.electronService.remote.require('electron-log');
+      console.log = this.logger.log;
+    } */
+
     // scroll to top in change page
     router.events.pipe(takeUntil(this.unsubscribe$)).subscribe((evt) => {
       if (!this.isFetching && evt instanceof RouteConfigLoadStart) {
@@ -48,6 +57,7 @@ export class LayoutDefaultComponent implements OnInit, AfterViewInit, OnDestroy 
       if (evt instanceof NavigationError || evt instanceof NavigationCancel) {
         this.isFetching = false;
         if (evt instanceof NavigationError) {
+          console.log(evt);
           msgSrv.error(`无法加载${evt.url}路由`, { nzDuration: 1000 * 3 });
         }
         return;

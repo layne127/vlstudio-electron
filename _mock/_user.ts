@@ -100,7 +100,7 @@ export const USERS = {
     phone: '你猜-你猜你猜猜猜',
   },
   'POST /user/avatar': 'ok',
-  'POST /login/account': (req: MockRequest) => {
+  'POST login/account': (req: MockRequest) => {
     const data = req.body;
     if (!(data.userName === 'admin' || data.userName === 'user') || data.password !== '123') {
       return { msg: `Invalid username or password（admin/123）` };

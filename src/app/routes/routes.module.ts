@@ -15,6 +15,7 @@ import { RouteRoutingModule } from './routes-routing.module';
 import { ProcessViewComponent } from '../biz/components/process-view/process-view.component';
 import { ScenceViewComponent } from '../biz/components/scence-view/scence-view.component';
 import { DragDirective } from '../biz/directives/drag.directive';
+import { VlsplayerComponent } from './vlsplayer/vlsplayer.component';
 
 const COMPONENTS: Type<void>[] = [
   DashboardComponent,
@@ -27,6 +28,7 @@ const COMPONENTS: Type<void>[] = [
   UserLockComponent,
   ProcessViewComponent,
   ScenceViewComponent,
+  VlsplayerComponent,
 ];
 const COMPONENTS_NOROUNT: Type<void>[] = [];
 

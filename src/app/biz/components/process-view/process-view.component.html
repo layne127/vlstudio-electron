@@ -1,3 +1,4 @@
+<!-- <full-content [(fullscreen)]="isProcessFullScreen"> -->
 <div nz-row class="content with-diagram" id="process-drop-zone" style="height: 100%">
   <div nz-col style="width: 100%; height: 100%">
     <div style="top: 0; bottom: 0; left: 0">
@@ -8,11 +9,25 @@
         <div class="properties-panel-parent" id="process-properties-panel" style="width:100%;height: 100%;"></div>
     </div> -->
   <div class="zoom-btn">
+    <!--     <div class="enlarge" (click)="stepBackward()">
+      <i nz-icon nzType="step-backward" nzTheme="outline"></i>
+    </div>
+    <div class="enlarge" (click)="stepForward()">
+      <i nz-icon nzType="step-forward" nzTheme="outline"></i>
+    </div> -->
     <div class="enlarge" (click)="zoomIn()">
       <i nz-icon nzType="zoom-in" nzTheme="outline"></i>
     </div>
     <div class="narrow" (click)="zoomOut()">
       <i nz-icon nzType="zoom-out" nzTheme="outline"></i>
     </div>
+    <div class="rollback" (click)="rollBack()">
+      <i nz-icon nzType="rollback" nzTheme="outline"></i>
+    </div>
+    <div class="fullscreen" (click)="processFullScreen()">
+      <i nz-icon *ngIf="!isProcessFullScreen" nzType="fullscreen" nzTheme="outline"></i>
+      <i nz-icon *ngIf="isProcessFullScreen" nzType="fullscreen-exit" nzTheme="outline"></i>
+    </div>
   </div>
 </div>
+<!-- </full-content> -->

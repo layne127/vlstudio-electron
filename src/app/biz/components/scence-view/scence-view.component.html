@@ -1,10 +1,17 @@
 <div nz-row class="content with-diagram" id="js-drop-zone" style="height: 100%">
   <!--   <div nz-col nzSpan="24" style="height: 100%;"> -->
   <div style="top: 0; bottom: 0; left: 0; width: 100%; height: 100%; background: #000">
-    <canvas id="scene-canvas" style="width: 100%; height: 100%"></canvas>
+    <canvas id="scene-canvas" style="width: 100%; height: 100%" tabindex="1"></canvas>
   </div>
   <!-- </div> -->
   <!-- <div nz-col nzSpan="4">
         <div class="properties-panel-parent" id="scene-properties-panel" style="width:100%;height: 100%;"></div>
     </div> -->
+
+  <div class="zoom-btn">
+    <div class="fullscreen" (click)="modelFullScreen()">
+      <i nz-icon *ngIf="!isModelFullScreen" nzType="fullscreen" nzTheme="outline"></i>
+      <i nz-icon *ngIf="isModelFullScreen" nzType="fullscreen-exit" nzTheme="outline"></i>
+    </div>
+  </div>
 </div>

@@ -1,0 +1,68 @@
+{
+  "name": "Virtual Library System",
+  "prefix": "vls",
+  "uri": "http://vls.bsti.net.cn/schema",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "associations": [],
+  "types": [
+    {
+      "name": "VlsStateActivity",
+      "extends": ["bpmn:Process", "bpmn:SubProcess", "bpmn:UserTask"],
+      "properties": [
+        {
+          "name": "state",
+          "isBody": true,
+          "type": "String"
+        },
+        {
+          "name": "camera",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "stateTransit",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "cameraTransit",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "duration",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "table",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "label",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "link",
+          "isAttr": true,
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "name": "VlsUserTask",
+      "extends": ["bpmn:UserTask"],
+      "properties": [
+        {
+          "name": "operate",
+          "isAttr": true,
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}

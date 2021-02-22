@@ -227,11 +227,20 @@ export default function (canvasId, propertiesPanelId, transparent = false) {
     }
 
     function loadModel(name, url) {
-        console.log('loadModel', this);
-        var model = new xeo.OBJModel(scene, {
-            id: name,
-            src: url
-        });                   
+        console.log('loadModel', this); 
+        if (url.endsWith('.gltf')) {
+            var model = new xeo.GLTFModel(scene, {
+                id: name,
+                src: url
+            });
+        } else if (url.endsWith('.obj')) {
+            var model = new xeo.OBJModel(scene, {
+                id: name,
+                src: url
+            });    
+        } else {
+            return;
+        }              
         
         model.on("loaded", function () {
             let toTreeNode = function (obj) {
@@ -475,6 +484,18 @@ export default function (canvasId, propertiesPanelId, transparent = false) {
         return state;
     };
 
+    this.getStats = function() {
+        var objects = 0;
+        var vertices = 0;
+        var triangles = 0;
+        Object.values(scene.meshes).forEach(m => {
+            objects ++; 
+            vertices += m.geometry.positions.length / 3;
+            triangles += m.geometry.indices.length / 3;
+        });
+        return {objects, vertices, triangles,};
+    };
+    
     let anim;
     this.playAnim = function (source, target, duration, opId, opArgs, anim_done) {
         // disable scene editing when animating, unless we are using a separate canvas to show it

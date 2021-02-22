@@ -1,0 +1,17 @@
+{
+  "name": "vlstudio-electron",
+  "version": "1.0.0",
+  "description": "A minimal Electron application",
+  "main": "main.js",
+  "author": "Layne127",
+  "dependencies": {
+    "adm-zip": "^0.5.2",
+    "dayjs": "^1.10.4",
+    "electron-log": "^4.3.1",
+    "electron-updater": "^4.3.5",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.5.0",
+    "underscore": "^1.12.0",
+    "unzip-stream": "^0.3.1"
+  }
+}

@@ -15,15 +15,16 @@ import { UserRegisterResultComponent } from './passport/register-result/register
 // single pages
 import { CallbackComponent } from './callback/callback.component';
 import { UserLockComponent } from './passport/lock/lock.component';
-
+import { VlsplayerComponent } from './vlsplayer/vlsplayer.component';
 const routes: Routes = [
   {
     path: '',
     component: LayoutDefaultComponent,
-    canActivate: [SimpleGuard],
+    //  canActivate: [SimpleGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent, data: { title: '仪表盘' } },
+      { path: 'dashboard', component: DashboardComponent, data: { title: 'WebGL工程应用3D引擎' } },
+      { path: 'vlsplayer', component: VlsplayerComponent, data: { title: '播放器' } },
       { path: 'exception', loadChildren: () => import('./exception/exception.module').then((m) => m.ExceptionModule) },
       // 业务子模块
       // { path: 'widgets', loadChildren: () => import('./widgets/widgets.module').then(m => m.WidgetsModule) },

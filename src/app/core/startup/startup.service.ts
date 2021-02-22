@@ -115,8 +115,9 @@ export class StartupService {
           },
           {
             text: 'Quick Menu',
+            link: '/vlsplayer',
             icon: { type: 'icon', value: 'rocket' },
-            shortcutRoot: true,
+            //   shortcutRoot: true,
           },
         ],
       },

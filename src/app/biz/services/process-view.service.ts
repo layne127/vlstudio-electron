@@ -8,15 +8,17 @@ import { EventEmitter } from 'events';
 import ContextPadProvider from 'bpmn-js/lib/features/context-pad/ContextPadProvider';
 import PaletteProvider from 'bpmn-js/lib/features/palette/PaletteProvider';
 
-const vlsModdleDescriptor = require('../../../assets/js/process-view/descriptors/vls.json');
+// const vlsModdleDescriptor = require('../../../assets/js/process-view/descriptors/vls.json');
+const vlsModdleDescriptor = require('../descriptors/vls.json');
 // import ProcessPropertiesProvider from '../../../assets/js/process-view/ProcessPropertiesProvider';
 import ProcessPropertiesProvider from '../providers/ProcessPropertiesProvider';
 
 import propertiesPanelModule from 'bpmn-js-properties-panel';
-import propertiesProviderModule from 'bpmn-js-properties-panel/lib/provider/bpmn';
+import propertiesProviderModule from 'bpmn-js-properties-panel/lib/provider/camunda';
 const camundaModdleDescriptor = require('camunda-bpmn-moddle/resources/camunda.json');
 import minimapModule from 'diagram-js-minimap';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { createJSDocThisTag } from 'typescript';
 import paletteProvider from '../bpmn-tools';
 import customTranslate from '../config/customTranslate';
 @Injectable({
@@ -34,8 +36,13 @@ export class ProcessViewService {
   updateScene: (id: any, state: any) => void;
   process: (id: any, result: any) => void;
   execute: (succ: any, fail: any) => void;
+  public processFullScreenValue = new BehaviorSubject<any>(null);
+  registryList: any;
+  elementRegistryList: any;
+  selectionTask: any;
+  updateCamera: (id: any, matrix: any) => void;
+  engine: any;
   constructor() {}
-
   processView(canvasId, propertiesPanelId, diagramXML) {
     const _getPaletteEntries = PaletteProvider.prototype.getPaletteEntries;
     PaletteProvider.prototype.getPaletteEntries = function (element) {
@@ -43,6 +50,10 @@ export class ProcessViewService {
       delete entries['create.start-event'];
       delete entries['create.intermediate-event'];
       delete entries['create.data-object'];
+      delete entries['create.subprocess-expanded'];
+      delete entries['create.group'];
+      delete entries['lasso-tool'];
+      delete entries['hand-tool'];
       delete entries['create.data-store'];
       // delete entries['create.subprocess-expanded'];
       delete entries['create.participant-expanded'];
@@ -74,9 +85,12 @@ export class ProcessViewService {
       delete entries['append.intermediate-event'];
       // delete entries['replace'];
       delete entries['append.text-annotation'];
+      delete entries['append.gateway'];
+      delete entries.connect;
 
       console.log('append_action', _getContextPadEntries.appendAction);
       console.log('append-task', entries['append.append-task']);
+      console.log(entries);
       return entries;
     };
 
@@ -86,11 +100,19 @@ export class ProcessViewService {
     };
     const options = {
       container: canvas,
+      bpmnRenderer: {
+        defaultFillColor: '#fff', // 线颜色
+        defaultStrokeColor: '#333', // 框背景色
+      },
+      textRenderer: {
+        defaultStyle: {},
+      },
       additionalModules: [
         minimapModule,
         customTranslateModule,
         propertiesPanelModule,
         ProcessPropertiesProvider,
+        // propertiesProviderModule
         //  paletteProvider
       ],
       moddleExtensions: {
@@ -116,7 +138,6 @@ export class ProcessViewService {
           await bpmnModeler.importXML(xml);
 
           container.removeClass('with-error').addClass('with-diagram');
-
           const minimap = bpmnModeler.get('minimap');
           minimap._parent.style.right = 'auto';
           minimap._parent.style.top = 'auto';
@@ -134,7 +155,8 @@ export class ProcessViewService {
 
     const modeling = bpmnModeler.get('modeling');
     const registry = bpmnModeler.get('elementRegistry');
-
+    this.registryList = registry;
+    // this.taskList = registry.getAll().filter(item => item.type === 'bpmn:UserTask');
     function reset() {
       const selection = bpmnModeler.get('selection');
       const canvas = bpmnModeler.get('canvas');
@@ -154,13 +176,16 @@ export class ProcessViewService {
 
     const eventBus = bpmnModeler.get('eventBus');
     this.eventBus = eventBus;
-
+    let elementRegistryList;
     eventBus.on('diagram.init', function (e) {
       console.log('diagram.init', e);
     });
-    eventBus.on('root.added', function (e) {
+    eventBus.on('root.added', (e) => {
       console.log('root.added', e);
+      this.elementRegistryList = e.element;
+      //   this.elementRegistryList = elementRegistryList;
     });
+
     eventBus.on('diagram.destroy', function (e) {
       console.log('diagram.destroy', e);
     });
@@ -198,8 +223,10 @@ export class ProcessViewService {
       // TODO: update sceneState when state is modified in the panel
     });
 
+    let selectiontask;
     eventBus.on('selection.changed', function (e) {
       console.log('selection.changed', e);
+      selectiontask = e;
       let element;
       if (e.newSelection.length == 1) {
         element = e.newSelection[0];
@@ -285,6 +312,13 @@ export class ProcessViewService {
             return Object.assign(s, e.sceneState);
           }
 
+          var camera = sourceElement.businessObject.get('camera');
+          if (camera) {
+            eventBus.fire('scene.set_camera', {
+              camera: JSON.parse(camera),
+            });
+          }
+
           const source = concatSceneState(sourceElement);
           const target = concatSceneState(targetElement);
           if (source !== undefined) {
@@ -315,6 +349,13 @@ export class ProcessViewService {
               element.sceneState = JSON.parse(state);
             }
           }
+          var camera = element.businessObject.get('camera');
+          if (camera) {
+            eventBus.fire('scene.set_camera', {
+              camera: JSON.parse(camera),
+            });
+          }
+
           // Is element.sceneState about the full scene??
           if (element.sceneState !== undefined) {
             let state = element.sceneState;
@@ -344,6 +385,28 @@ export class ProcessViewService {
       openDiagram(xml);
     };
 
+    this.updateCamera = function (id, matrix) {
+      let element = selectedElement;
+      if (element) {
+        if (element.type === 'bpmn:StartEvent') element = element.parent;
+
+        // Update the root element when new models are loaded
+        if (id === '@vls_root_element') {
+          let canvas = bpmnModeler.get('canvas');
+          element = canvas._rootElement;
+        }
+
+        //element.businessObject.set('camera', JSON.stringify(element.sceneState));
+
+        if (matrix) {
+          let cmd = bpmnModeler.get('commandStack');
+          cmd.execute('element.updateProperties', {
+            element,
+            properties: { camera: JSON.stringify(matrix) },
+          });
+        }
+      }
+    };
     this.updateScene = function (id, state) {
       let element = selectedElement;
       if (element) {
@@ -373,14 +436,18 @@ export class ProcessViewService {
             // find diff with parent scene
             const parentState = element.parent.sceneState; // TODO: parentScene undefined?
             element.sceneState = {};
-            Object.keys(state).forEach((id) => {
-              if (JSON.stringify(parentState[id]) !== JSON.stringify(state[id])) {
-                element.sceneState[id] = state[id];
-              }
-            });
+            // tslint:disable-next-line: no-unused-expression
+            Object &&
+              Object.keys(state).forEach((id) => {
+                if (JSON.stringify(parentState[id]) !== JSON.stringify(state[id])) {
+                  element.sceneState[id] = state[id];
+                }
+              });
           } else {
             Object.assign(element.sceneState, state); // TODO: check against parent?
           }
+          this.selectionTask = element;
+          console.log(this.selectionTask);
         }
 
         if (element.sceneState) {
@@ -403,7 +470,7 @@ export class ProcessViewService {
       console.log('parseFullSceneState', activity, context);
 
       const state = activity.behaviour.state === undefined ? {} : JSON.parse(activity.behaviour.state);
-
+      let camera = activity.behaviour.camera === undefined ? undefined : JSON.parse(activity.behaviour.camera);
       switch (activity.type) {
         case 'bpmn:Process':
           activity.fullSceneState = state;
@@ -419,6 +486,7 @@ export class ProcessViewService {
               : context.getActivityById(activity.parent.id);
           activity.fullSceneState = Object.assign({}, parent.fullSceneState, state);
           activity.sceneState = state; // Needed for computing sourceParallel
+          activity.cameraState = camera;
           break;
       }
 
@@ -434,15 +502,15 @@ export class ProcessViewService {
     const engine = Engine({
       name: 'ProcessPlayer',
       source: xml,
-      /* moddleOptions: {
-                vls: vlsModdleDescriptor,
-                camunda: camundaModdleDescriptor
-            }, */
+      moddleOptions: {
+        vls: vlsModdleDescriptor,
+        camunda: camundaModdleDescriptor,
+      },
       extensions: {
         parseFullSceneState,
       },
     });
-
+    this.engine = engine;
     const listener = new EventEmitter();
 
     listener.once('process.start', (api) => {
@@ -482,6 +550,10 @@ export class ProcessViewService {
     listener.on('activity.start', (api) => {
       console.log('activity.start', api);
       setColor([api.id], { stroke: 'green', fill: '#9f9' });
+      var camera = api.owner.cameraState;
+      if (camera) {
+        eventBus.fire('scene.set_camera', { camera });
+      }
     });
 
     listener.on('activity.end', (api, engine) => {
@@ -580,12 +652,26 @@ export class ProcessViewService {
         return env.variables.result.operate == expected;
       }
 
-      /* engine.once('end', (execution) => {
-                console.log('engine end', execution);
-                setTimeout(() => {
-                    succ();
-                }, 1000);
-            }); */
+      engine.once('end', (execution) => {
+        var root = execution.definitions[0].getProcesses()[0];
+        var camera = root.cameraState;
+        if (camera) {
+          eventBus.fire('scene.set_camera', { camera });
+        }
+        eventBus.fire('scene.set_state', { state: root.fullSceneState });
+
+        setTimeout(() => {
+          succ();
+        }, 1000);
+      });
+
+      engine.once('stop', (execution) => {
+        console.log('engine stop', execution);
+      });
+
+      engine.once('error', (execution) => {
+        console.log('engine error', execution);
+      });
 
       engine.execute(
         {

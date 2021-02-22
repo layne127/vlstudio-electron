@@ -12,12 +12,13 @@ import nameProps from 'bpmn-js-properties-panel/lib/provider/bpmn/parts/NameProp
 import processProps from 'bpmn-js-properties-panel/lib/provider/bpmn/parts/ProcessProps';
 
 // Require your custom property entries.
-import sceneProps from '../../../assets/js/scence-view/parts/SceneProps';
+// import sceneProps from '../../../assets/js/scence-view/parts/SceneProps';
+import sceneProps from '../parts/SceneProps';
 
 // The general tab contains all bpmn relevant properties.
 // The properties are organized in groups.
 function createGeneralTabGroups(element, bpmnFactory, canvas, elementRegistry, translate) {
-  let generalGroup = {
+  const generalGroup = {
     id: 'general',
     label: 'General',
     entries: [],
@@ -26,7 +27,7 @@ function createGeneralTabGroups(element, bpmnFactory, canvas, elementRegistry, t
   nameProps(generalGroup, element, bpmnFactory, canvas, translate);
   processProps(generalGroup, element, translate);
 
-  let detailsGroup = {
+  const detailsGroup = {
     id: 'details',
     label: 'Details',
     entries: [],
@@ -34,7 +35,7 @@ function createGeneralTabGroups(element, bpmnFactory, canvas, elementRegistry, t
   linkProps(detailsGroup, element, translate);
   eventProps(detailsGroup, element, bpmnFactory, elementRegistry, translate);
 
-  let documentationGroup = {
+  const documentationGroup = {
     id: 'documentation',
     label: 'Documentation',
     entries: [],
@@ -47,7 +48,7 @@ function createGeneralTabGroups(element, bpmnFactory, canvas, elementRegistry, t
 
 // Create the custom model tab
 function createModelTabGroups(element) {
-  let modelPropertiesGroup = {
+  const modelPropertiesGroup = {
     id: 'model',
     label: '',
     entries: [],
@@ -63,7 +64,7 @@ export default function ModelPropertiesProvider(eventBus, bpmnFactory, canvas, e
 
   this.getTabs = function (element) {
     // The "magic" tab
-    let modelTab = {
+    const modelTab = {
       id: 'model',
       label: 'Properties',
       groups: createModelTabGroups(element),

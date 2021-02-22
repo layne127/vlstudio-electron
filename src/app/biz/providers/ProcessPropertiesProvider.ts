@@ -14,7 +14,9 @@ import conditionalProps from 'bpmn-js-properties-panel/lib/provider/camunda/part
 import userTaskProps from 'bpmn-js-properties-panel/lib/provider/camunda/parts/UserTaskProps';
 
 // Require your custom property entries.
-import processProps from '../../../assets/js/process-view/parts/ProcessProps';
+// import processProps from '../../../assets/js/process-view/parts/ProcessProps';
+import processProps from '../parts/ProcessProps';
+import titleProps from '../parts/TitleProps';
 
 // The general tab contains all bpmn relevant properties.
 // The properties are organized in groups.
@@ -70,6 +72,25 @@ function createMagicTabGroups(element, bpmnFactory, canvas, elementRegistry, tra
   return [blackMagicGroup];
 }
 
+// Create the custom magic tab
+function createAuthorityTabGroups(element, bpmnFactory, canvas, elementRegistry, translate) {
+  // Create a group called "Black Magic".
+  const authorityGroup = {
+    id: 'authority',
+    label: element.type,
+    entries: [],
+  };
+
+  console.log(element);
+  nameProps(authorityGroup, element, bpmnFactory, canvas, translate);
+  // Add the spell props to the black magic group.
+  processProps(authorityGroup, element);
+  userTaskProps(authorityGroup, element, translate);
+  titleProps(authorityGroup, element);
+
+  return [authorityGroup];
+}
+
 function MagicPropertiesProvider(eventBus, bpmnFactory, canvas, elementRegistry, translate) {
   console.log('MagicPropertiesProvider', {
     eventBus,
@@ -83,14 +104,18 @@ function MagicPropertiesProvider(eventBus, bpmnFactory, canvas, elementRegistry,
   this.getTabs = function (element) {
     const generalTab = {
       id: 'general',
-      label: 'General',
+      label: '通用',
       groups: createGeneralTabGroups(element, bpmnFactory, canvas, elementRegistry, translate),
     };
-
     const magicTab = {
       id: 'magic',
       label: 'Properties',
       groups: createMagicTabGroups(element, bpmnFactory, canvas, elementRegistry, translate),
+    };
+    const authorityTab = {
+      id: 'authority',
+      label: 'authority',
+      groups: createAuthorityTabGroups(element, bpmnFactory, canvas, elementRegistry, translate),
     };
 
     return [generalTab];

@@ -6,11 +6,23 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import * as xeogl from 'xeogl';
 const xeo = xeogl;
 const OBJModel: any = require('../../../assets/js/scence-view/js/models/OBJModel');
+const glTFModel: any = require('../../../assets/js/scence-view/js/models/glTFModel');
 const vectorTextGeometry: any = require('../../../assets/js/scence-view/js/geometry/vectorTextGeometry');
 const axisHelper: any = require('../../../assets/js/scence-view/js/helpers/axisHelper');
+const curve: any = require('../../../assets/js/scence-view/js/curves/curve');
+const splineCurve: any = require('../../../assets/js/scence-view/js/curves/splineCurve');
+const cameraPath: any = require('../../../assets/js/scence-view/js/animation/cameraPath');
+const cameraPathAnimation: any = require('../../../assets/js/scence-view/js/animation/cameraPathAnimation');
+const cameraFollowAnimation: any = require('../../../assets/js/scence-view/js/animation/cameraFollowAnimation');
 OBJModel(xeo);
+glTFModel(xeo);
 vectorTextGeometry(xeo);
 axisHelper(xeo);
+curve(xeo);
+splineCurve(xeo);
+cameraPath(xeo);
+cameraPathAnimation(xeo);
+cameraFollowAnimation(xeo);
 import PropertiesActivator from 'bpmn-js-properties-panel/lib/PropertiesActivator';
 // Require all properties you need from existing providers.
 // In this case all available bpmn relevant properties without camunda extensions.
@@ -23,8 +35,8 @@ import ScenePropertiesProvider from '../providers/ScenePropertiesProvider';
 export class ScenceViewService {
   private subject = new Subject<any>();
   private vlssubject = new Subject<any>();
-  private modelTreeList = new Subject<any>();
-  modelLibraryUrl: any;
+  public modelTreeList = new Subject<any>();
+  // modelLibraryUrl: any;
   vlsmodelLibraryUrl: any;
   xeogl: any;
   cancel: (element: any) => void;
@@ -41,7 +53,11 @@ export class ScenceViewService {
   once: any;
   fire: any;
   loadModel: (name: any, url: any) => any;
+  model: any;
   cameraControl: any;
+  ambientLight: any;
+  axisHelper: any;
+  mesh: any;
   hoverMesh: (id: any) => void;
   selectMesh: (ids: any) => void;
   setState: (sceneState: any) => void;
@@ -53,14 +69,20 @@ export class ScenceViewService {
 
   // operates = new EventEmitter<string>();
   public operatesHit = new BehaviorSubject<any>(null);
+  public modelLibraryUrl = new BehaviorSubject<any>(null);
   getStates: () => {};
+  clearScene: () => void;
+  setCamera: (cam: any) => void;
+  clear: () => void;
+  clearModels: () => void;
+  getStats: () => { objects: number; vertices: number; triangles: number };
   constructor() {}
 
   /**
    * obj模型库地址
    */
   sendModelLibraryUrl(value: any) {
-    this.modelLibraryUrl = null;
+    // this.modelLibraryUrl = null;
     if (value) {
       // this.modelLibraryUrl = value;
       this.subject.next(value);
@@ -233,18 +255,23 @@ export class ScenceViewService {
 
   senceView(canvasId, propertiesPanelId, transparent = false) {
     const that = this;
-    console.log('aa', canvasId, document.getElementById(canvasId));
     const scene = new xeogl.Scene({
       canvas: canvasId,
       transparent,
     });
+    console.log('加载模型场景', scene);
+    scene.passes = 2;
+    scene.clearEachPass = false;
+    scene.clearClips();
     scene.clearLights();
+    /* scene.clear();
+    scene.destroy(); */
 
     // xeogl.setDefaultScene(scene);
     this.xeogl = xeogl;
 
     // tslint:disable-next-line: no-unused-expression
-    new xeogl.AmbientLight(scene, {
+    that.ambientLight = new xeogl.AmbientLight(scene, {
       color: [1.0, 1.0, 1.0],
     });
     // tslint:disable-next-line: no-unused-expression
@@ -273,7 +300,7 @@ export class ScenceViewService {
     camera.orbitYaw(200);
 
     // tslint:disable-next-line: no-unused-expression
-    new xeo.AxisHelper({
+    that.axisHelper = new xeo.AxisHelper({
       camera: scene.camera,
       size: [100, 100],
       visible: true,
@@ -288,7 +315,7 @@ export class ScenceViewService {
 
     // TODO: scene environment settings
     // tslint:disable-next-line: no-unused-expression
-    new xeogl.Mesh(scene, {
+    that.mesh = new xeogl.Mesh(scene, {
       geometry: new xeogl.PlaneGeometry(scene, {
         xSize: 20,
         zSize: 20,
@@ -297,7 +324,8 @@ export class ScenceViewService {
         shininess: 170,
         specular: [0.1, 0.1, 0.3],
         diffuseMap: new xeogl.Texture(scene, {
-          src: '../../../assets/js/scence-view/textures/diffuse/uvGrid2.jpg',
+          //   src: '../../../assets/js/scence-view/textures/diffuse/UVCheckerMap11-1024.png',
+          src: 'assets/js/scence-view/textures/diffuse/UVCheckerMap11-1024.png',
           scale: [-5.0, 5.0],
         }),
         xalpha: 0.99,
@@ -316,6 +344,21 @@ export class ScenceViewService {
     this.off = eventBus.off;
     this.once = eventBus.once;
     this.fire = eventBus.fire;
+
+    this.setCamera = function (cam) {
+      var cameraPath = new xeo.CameraPath(scene, {
+        frames: [
+          { t: 0, eye: camera.eye, look: camera.look, up: camera.up },
+          { t: 1, eye: cam.eye, look: cam.look, up: cam.up },
+        ],
+      });
+      var cameraPathAnimation = new xeo.CameraPathAnimation(scene, {
+        cameraPath: cameraPath,
+        playingRate: 0.5,
+      });
+      console.log(cameraPathAnimation);
+      cameraPathAnimation.flyToFrame(1);
+    };
 
     function dumpState(obj, levels = -1, state = {}) {
       state[obj.id] = {
@@ -337,10 +380,19 @@ export class ScenceViewService {
 
     function loadModel(name, url) {
       console.log('loadModel', this);
-      const model = new xeo.OBJModel(scene, {
-        id: name,
-        src: url,
-      });
+      if (url.endsWith('.gltf')) {
+        var model = new xeo.GLTFModel(scene, {
+          id: name,
+          src: url,
+        });
+      } else if (url.endsWith('.obj')) {
+        var model = new xeo.OBJModel(scene, {
+          id: name,
+          src: url,
+        });
+      } else {
+        return;
+      }
 
       model.on('loaded', function () {
         const toTreeNode = function (obj) {
@@ -354,10 +406,24 @@ export class ScenceViewService {
         };
         eventBus.fire('model.loaded', { model: toTreeNode(model) });
       });
+      that.model = model;
       return model;
     }
 
+    function clearScene() {
+      console.log(scene);
+      console.log(that.xeogl);
+      console.log(that.model);
+      console.log(that.mesh);
+      that.axisHelper.setVisible(false);
+      that.cameraControl.destroy();
+      that.mesh.destroy();
+      //  that.ambientLight.clear();
+      that.model.clear();
+    }
+
     that.loadModel = loadModel;
+    that.clearScene = clearScene;
     const canvas = {
       root: {
         id: 'xeogl.Scene',
@@ -397,7 +463,17 @@ export class ScenceViewService {
               });
 
               const state = dumpState(data.element.object, 0);
+              console.log(state);
               eventBus.fire('node.updated', { state });
+              eventBus.fire('camera.updated', {
+                camera: {
+                  eye: Array.from(camera.eye),
+                  look: Array.from(camera.look),
+                  up: Array.from(camera.up),
+                },
+              });
+              // To disable entry.oldValues check in PropertiesPanel.applyChanges
+              eventBus.fire('selection.changed', { newSelection: selectedHits });
               break;
           }
         },
@@ -568,6 +644,7 @@ export class ScenceViewService {
       // scene.clear();
       data.models.forEach((m) => {
         const model = loadModel(m.id, m.src);
+        // const model = loadModel(m.id, url + '/' + m.src);
         model.position = new Float32Array(m.position);
         model.rotation = new Float32Array(m.rotation);
         model.scale = new Float32Array(m.scale);
@@ -583,7 +660,17 @@ export class ScenceViewService {
       });
       return state;
     };
-
+    this.getStats = function () {
+      var objects = 0;
+      var vertices = 0;
+      var triangles = 0;
+      Object.values(scene.meshes).forEach((m: any) => {
+        objects++;
+        vertices += m.geometry.positions.length / 3;
+        triangles += m.geometry.indices.length / 3;
+      });
+      return { objects, vertices, triangles };
+    };
     let anim;
     this.playAnim = function (source, target, duration, opId, opArgs, anim_done) {
       // disable scene editing when animating, unless we are using a separate canvas to show it
@@ -644,6 +731,16 @@ export class ScenceViewService {
         anim.cancel();
         anim = null;
       }
+    };
+
+    this.clear = function () {
+      scene.clear();
+    };
+
+    this.clearModels = function () {
+      Object.values(scene.models).forEach((m: any) => {
+        m.destroy();
+      });
     };
   }
 }

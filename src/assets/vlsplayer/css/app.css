@@ -1,0 +1,102 @@
+/* line 2, styles/app.less */
+* {
+  box-sizing: border-box;
+}
+/* line 6, styles/app.less */
+body,
+html {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  height: 100%;
+  max-height: 100%;
+  padding: 0;
+  margin: 0;
+}
+/* line 19, styles/app.less */
+a:link {
+  text-decoration: none;
+}
+/* line 23, styles/app.less */
+.content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+/* line 28, styles/app.less */
+.content > .message {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  display: table;
+  font-size: 16px;
+  color: #111;
+}
+/* line 37, styles/app.less */
+.content > .message .note {
+  vertical-align: middle;
+  text-align: center;
+  display: table-cell;
+}
+/* line 44, styles/app.less */
+.content > .message.error .details {
+  max-width: 500px;
+  font-size: 12px;
+  margin: 20px auto;
+  text-align: left;
+  color: #BD2828;
+}
+/* line 52, styles/app.less */
+.content > .message.error pre {
+  border: solid 1px #BD2828;
+  background: #fefafa;
+  padding: 10px;
+  color: #BD2828;
+}
+/* line 60, styles/app.less */
+.content:not(.with-error) .error,
+.content.with-error .intro,
+.content.with-diagram .intro {
+  display: none;
+}
+/* line 66, styles/app.less */
+.content .canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+/* line 74, styles/app.less */
+.content .canvas,
+.content .properties-panel-parent {
+  display: none;
+}
+/* line 80, styles/app.less */
+.content.with-diagram .canvas,
+.content.with-diagram .properties-panel-parent {
+  display: block;
+}
+/* line 89, styles/app.less */
+.tools-btn {
+  width: 100%;
+  height: 46px;
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  background: #f2f2f2;
+  opacity: 0.7;
+}
+/* line 99, styles/app.less */
+.tool-play {
+  width: 80%;
+}
+/* line 102, styles/app.less */
+.fullscreen {
+  width: 20%;
+}
+/* line 105, styles/app.less */
+.play-btn {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}

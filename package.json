@@ -1,9 +1,15 @@
 {
-  "name": "vlstudio-web",
+  "name": "vlstudio",
   "version": "0.0.0",
+  "main": "./app/main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng s -o",
+    "dev": "concurrently \"ng s -o\" \"electron . --dev\"",
+    "win-pack": "ng build --prod --build-optimizer && electron-builder -w",
+    "start:electron": "ng build --base-href ./ && electron .",
+    "pack-mac:electron": "ng build --base-href ./ && electron-builder build --mac",
+    "pack-win:electron": "ng build --base-href ./ && electron-builder build --win",
     "build": "node --max_old_space_size=5120 ./node_modules/@angular/cli/bin/ng build --prod",
     "test": "ng test",
     "lint": "npm run lint:ts && npm run lint:style",
@@ -41,20 +47,30 @@
     "@ngx-translate/core": "^13.0.0",
     "@ngx-translate/http-loader": "^6.0.0",
     "ajv": "^6.12.4",
-    "bpmn-engine": "^11.2.0",
+    "axios": "^0.21.1",
+    "bpmn-engine": "^10.1.0",
     "bpmn-js": "^7.4.0",
     "bpmn-js-properties-panel": "^0.32.0",
     "camunda-bpmn-moddle": "^4.4.1",
     "dayjs": "^1.9.4",
     "diagram-js": "^6.8.0",
     "diagram-js-minimap": "^2.0.3",
+    "electron-log": "^4.3.1",
+    "file-saver": "^2.0.5",
+    "file-system": "^2.2.2",
+    "fs": "0.0.1-security",
+    "is-buffer": "^2.0.5",
     "jquery": "^3.5.1",
+    "jszip": "^3.5.0",
     "min-dash": "^3.5.2",
     "ng-alain": "^10.0.2",
     "ng-zorro-antd": "^10.0.1",
+    "ngx-electron": "^2.2.0",
+    "path": "^0.12.7",
     "rxjs": "~6.6.0",
     "screenfull": "^5.0.2",
     "tslib": "^2.0.0",
+    "underscore": "^1.12.0",
     "vm": "^0.1.0",
     "xeogl": "^0.9.0",
     "zone.js": "~0.10.2"
@@ -63,10 +79,15 @@
     "@angular-devkit/build-angular": "~0.1002.0",
     "@angular/cli": "~10.2.0",
     "@angular/compiler-cli": "~10.2.0",
-    "@types/node": "^12.11.1",
+    "@angularclass/hmr": "^3.0.0",
+    "@delon/testing": "^10.0.2",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
+    "@types/node": "^12.19.15",
     "codelyzer": "^6.0.0",
+    "electron": "^11.2.0",
+    "electron-builder": "^22.9.1",
+    "husky": "^4.2.3",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~5.0.0",
@@ -74,31 +95,67 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
-    "protractor": "~7.0.0",
-    "ts-node": "~8.3.0",
-    "tslint": "~6.1.0",
-    "typescript": "~4.0.2",
     "ng-alain": "^10.0.2",
     "ng-alain-codelyzer": "^0.0.1",
     "ng-alain-plugin-theme": "^10.0.3",
-    "@delon/testing": "^10.0.2",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-language-service": "^0.9.9",
-    "pretty-quick": "^3.0.2",
-    "husky": "^4.2.3",
+    "nz-tslint-rules": "^0.901.2",
     "prettier": "^2.1.2",
+    "pretty-quick": "^3.0.2",
+    "protractor": "~7.0.0",
     "stylelint": "^13.7.0",
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-declaration-block-no-ignored-properties": "^2.3.0",
     "stylelint-order": "^4.1.0",
-    "nz-tslint-rules": "^0.901.2",
-    "@angularclass/hmr": "^3.0.0"
+    "ts-node": "~8.3.0",
+    "tslint": "~6.1.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-language-service": "^0.9.9",
+    "typescript": "~4.0.2"
   },
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged"
     }
-  }
+  },
+  "build": {
+    "appId": "com.bsti.vlstudio",
+    "productName": "vlstudio",
+    "directories": {
+      "output": "release"
+    },
+    "electronDownload": {
+      "mirror": "https://npm.taobao.org/mirrors/electron/"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://localhost:4200"
+      }
+    ],
+    "win": {
+      "icon": "app/dist/assets/icons/ionic.png",
+      "target": [
+        {
+          "target": "nsis"
+        }
+      ]
+    },
+    "mac": {
+      "icon": "app/dist/assets/icons/ionic.png",
+      "target": [
+        "dmg"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "keywords": [
+    "dist"
+  ]
 }

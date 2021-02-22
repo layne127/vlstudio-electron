@@ -95,6 +95,8 @@ import { STWidgetModule } from './shared/st-widget/st-widget.module';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { NgxElectronModule } from 'ngx-electron';
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -109,11 +111,13 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     STWidgetModule,
     FormsModule,
     ReactiveFormsModule,
+    NgxElectronModule,
     ...I18NSERVICE_MODULES,
     ...FORM_MODULES,
     ...GLOBAL_THIRD_MODULES,
   ],
   providers: [...LANG_PROVIDES, ...INTERCEPTOR_PROVIDES, ...I18NSERVICE_PROVIDES, ...APPINIT_PROVIDES],
+  //providers: [...LANG_PROVIDES, ...I18NSERVICE_PROVIDES, ...APPINIT_PROVIDES],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

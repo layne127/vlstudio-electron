@@ -151,7 +151,7 @@ export default function (xml, eventBus, setColor) {
                         if (operate)
                             operate = JSON.parse(operate);
                         // TODO: disable scene editing, and ignore scene.updated messages 
-
+console.log('api', api);
                         eventBus.fire('animation.play', {
                             id: api.executionId,
                             source: source.owner.fullSceneState,

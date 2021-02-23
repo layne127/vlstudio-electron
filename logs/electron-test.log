@@ -1,0 +1,10 @@
+[2021-02-23 09:33:23.244] [error] error!
+[2021-02-23 09:33:23.258] [info] info!
+[2021-02-23 09:33:23.260] [warn] warn!
+[2021-02-23 09:33:23.261] [verbose] verbose!
+[2021-02-23 09:33:23.262] [debug] debug!
+[2021-02-23 09:33:23.262] [silly] silly!
+[2021-02-23 09:33:23.512] [info] electron test app start at  2021-02-23T01:33:23.512Z
+[2021-02-23 09:33:23.513] [info] /Users/layne127/projects/bsti/vls/vlstudio-electron
+[2021-02-23 09:33:23.514] [info] vlstudio
+[2021-02-23 09:33:23.514] [info] /Users/layne127/projects/bsti/vls/vlstudio-electron/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron

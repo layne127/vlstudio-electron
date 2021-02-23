@@ -10,7 +10,7 @@ const AdmZip = require('adm-zip');
 const underscore = require('underscore');
 // 日志设置
 // logger.transports.file.level = 'info';
-logger.transports.file.file = './electron-test.log';
+// logger.transports.file.file = './logs/electron-test.log';  // 设置日志存储位置
 /* logger.transports.file.level = false;
 logger.transports.console.level = false; */
 logger.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}]{scope} {text}';
@@ -25,14 +25,17 @@ logger.silly('silly!');
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 800,
+    /* width: 1000,
+    height: 800, */
+    show: false,
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: false,
       preload: './preload.js',
     },
   });
+  mainWindow.maximize();
+  mainWindow.show();
   logger.info('electron test app start at ', new Date());
   logger.info(app.getAppPath());
   logger.info(app.getName());
